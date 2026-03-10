@@ -1,0 +1,6 @@
+data
+data/*
+data/**
+.env
+bin_bot
+bin_bot.exe
