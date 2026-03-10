@@ -18,9 +18,9 @@ COPY . .
 RUN CGO_ENABLED=1 GOOS=linux go build -a -o discordbot .
 
 # Stage 2: Minimal runtime image
-# We use a distroless image or alpine with gcompat to support CGO go-sqlite3 bindings
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates tzdata gcompat
+# We use Debian slim instead of Alpine to guarantee 100% glibc compatibility for go-sqlite3 bindings
+FROM debian:bookworm-slim
+RUN apt-get update && apt-get install -y ca-certificates tzdata && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
