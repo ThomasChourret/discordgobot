@@ -13,13 +13,19 @@ import (
 	"google.golang.org/genai"
 )
 
+// ChatSession wraps a genai Chat to track its last activity time for garbage collection
+type ChatSession struct {
+	Chat     *genai.Chat
+	LastUsed time.Time
+}
+
 type Component struct {
 	apiKey string
 	model  string
 	client *genai.Client
 
 	// Simple in-memory thread history cache map[channelID/userID]ChatSession
-	sessions   map[string]*genai.Chat
+	sessions   map[string]*ChatSession
 	sessionsMu sync.Mutex
 }
 
@@ -30,7 +36,7 @@ func NewModule(apiKey string, model string) *Component {
 	return &Component{
 		apiKey:   apiKey,
 		model:    model,
-		sessions: make(map[string]*genai.Chat),
+		sessions: make(map[string]*ChatSession),
 	}
 }
 
@@ -56,7 +62,25 @@ func (m *Component) Init(session *discordgo.Session) error {
 	}
 
 	m.client = client
+
+	// Start background cleanup goroutine
+	go m.cleanupStaleSessions()
+
 	return nil
+}
+
+// cleanupStaleSessions periodically removes sessions inactive for over 24 hours to prevent memory leaks
+func (m *Component) cleanupStaleSessions() {
+	ticker := time.NewTicker(1 * time.Hour)
+	for range ticker.C {
+		m.sessionsMu.Lock()
+		for key, session := range m.sessions {
+			if time.Since(session.LastUsed) > 24*time.Hour {
+				delete(m.sessions, key)
+			}
+		}
+		m.sessionsMu.Unlock()
+	}
 }
 
 func (m *Component) Enable()  {}
@@ -143,15 +167,21 @@ func (m *Component) generateResponse(key string, prompt string) (string, error) 
 
 	if !exists {
 		// No system instructions configured, just pass nil for config to avoid restrictions
-		session, _ = m.client.Chats.Create(context.Background(), m.model, nil, nil)
+		chat, _ := m.client.Chats.Create(context.Background(), m.model, nil, nil)
+		session = &ChatSession{
+			Chat:     chat,
+			LastUsed: time.Now(),
+		}
 		m.sessions[key] = session
+	} else {
+		session.LastUsed = time.Now()
 	}
 	m.sessionsMu.Unlock()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	resp, err := session.SendMessage(ctx, genai.Part{Text: prompt})
+	resp, err := session.Chat.SendMessage(ctx, genai.Part{Text: prompt})
 	if err != nil {
 		return "", err
 	}

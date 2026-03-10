@@ -43,4 +43,4 @@ Lists all available Gemini models that can be used for text generation.
 
 ## Behavior
 - The module automatically splits and sends multiple embeds if the response exceeds Discord's character limits.
-- Conversations are stored in-memory, meaning they will be lost when the bot restarts.
+- Conversations are stored in an in-memory session cache. Threads that are inactive for more than 24 hours are automatically garbage-collected to prevent memory leaks. Also, all history is lost when the bot restarts.
