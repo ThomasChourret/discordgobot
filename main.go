@@ -24,7 +24,10 @@ func main() {
 	log.Println("Initializing database...")
 
 	// Create data dir if it doesn't exist (for local runs)
-	os.MkdirAll("./data", os.ModePerm)
+	err := os.MkdirAll("./data", os.ModePerm)
+	if err != nil {
+		log.Printf("Warning: Failed to create ./data directory. It may already exist or cannot be created: %v", err)
+	}
 
 	database := db.Connect("./data/bot.db")
 	defer database.Close()

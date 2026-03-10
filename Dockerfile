@@ -18,11 +18,9 @@ COPY . .
 RUN CGO_ENABLED=1 GOOS=linux go build -a -o discordbot .
 
 # Stage 2: Minimal runtime image
+# We use a distroless image or alpine with gcompat to support CGO go-sqlite3 bindings
 FROM alpine:latest
-
-# Install CA certificates to enable HTTPS communication with Discord/Gemini APIs
-# Install tzdata for timezone support
-RUN apk --no-cache add ca-certificates tzdata
+RUN apk --no-cache add ca-certificates tzdata gcompat
 
 WORKDIR /app
 
