@@ -12,7 +12,7 @@ The **Gemini Persona** module integrates Google's Gemini AI directly into Discor
 
 This module utilizes the following environment variables:
 - `GEMINI_API_KEY` (Required): The API key to access Google's Gemini models.
-- `GEMINI_MODEL` (Optional): The specific model to use for chat interactions (defaults to `gemini-3-27b`).
+- `GEMINI_MODEL` (Optional): The specific model to use for chat interactions (defaults to `gemma-3-27b-it`).
 
 ## Commands
 

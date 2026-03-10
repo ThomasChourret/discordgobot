@@ -35,7 +35,7 @@ func Load() *Config {
 
 	geminiModel := os.Getenv("GEMINI_MODEL")
 	if geminiModel == "" {
-		geminiModel = "gemini-3-27b"
+		geminiModel = "gemma-3-27b-it"
 	}
 
 	return &Config{

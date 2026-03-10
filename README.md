@@ -47,8 +47,8 @@ Integrates Google's Gemini models natively into channel conversations. By simply
    # Your Google Gemini API Key
    GEMINI_API_KEY=your_gemini_api_key_here
    
-   # The Gemini model to use (default: gemini-3-27b)
-   GEMINI_MODEL=gemini-3-27b
+   # The Gemini model to use (default: gemma-3-27b-it)
+   GEMINI_MODEL=gemma-3-27b-it
    ```
 
 ### Running Locally (Go)
