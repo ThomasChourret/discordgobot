@@ -16,10 +16,9 @@ type Config struct {
 
 // Load reads the .env file and validates required variables
 func Load() *Config {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("No .env file found. Reading from environment variables.")
-	}
+	// Ignore the error if .env is missing. It is expected when running inside a Docker container
+	// since environment variables are injected directly.
+	_ = godotenv.Load()
 
 	discordToken := os.Getenv("DISCORD_TOKEN")
 	if discordToken == "" {
