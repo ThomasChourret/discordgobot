@@ -12,6 +12,7 @@ import (
 	"github.com/thomaschourret/discordgobot/modules/gemini"
 	"github.com/thomaschourret/discordgobot/modules/geminipersona"
 	"github.com/thomaschourret/discordgobot/modules/getrole"
+	"github.com/thomaschourret/discordgobot/modules/personalvoice"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -40,7 +41,7 @@ func main() {
 	}
 
 	// We want to receive interaction events and message creates
-	dg.Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMessages
+	dg.Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildVoiceStates
 
 	// 4. Initialize Core Module Manager
 	manager := core.NewModuleManager(dg)
@@ -49,6 +50,7 @@ func main() {
 	manager.Register(getrole.NewModule(database))
 	manager.Register(gemini.NewModule(cfg.GeminiAPIKey, cfg.GeminiModel, database, cfg.GeminiUseSystemPrompt))
 	manager.Register(geminipersona.NewModule(cfg.GeminiAPIKey, cfg.GeminiModel, database, cfg.GeminiPersonaUseSystemPrompt))
+	manager.Register(personalvoice.NewModule(database))
 
 	// 6. Open Websocket Connection
 	log.Println("Opening connection to Discord...")

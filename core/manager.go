@@ -13,6 +13,9 @@ type ModuleManager struct {
 
 	// mappedHandlers stores interaction/event names to their executable functions
 	mappedHandlers map[string]interface{}
+
+	// globalHandlers stores event types to a list of handler functions
+	globalHandlers map[string][]interface{}
 }
 
 // NewModuleManager creates a new manager instance
@@ -21,14 +24,15 @@ func NewModuleManager(s *discordgo.Session) *ModuleManager {
 		Session:        s,
 		Modules:        []Module{},
 		mappedHandlers: make(map[string]interface{}),
+		globalHandlers: make(map[string][]interface{}),
 	}
 
 	// Register the global InteractionCreate handler
 	s.AddHandler(m.handleInteractionCreate)
 
 	// Note: You can add more global routers here (e.g., MessageCreate)
-	// For messages, you'd iterate through modules and see which ones listen to MessageCreate.
 	s.AddHandler(m.handleMessageCreate)
+	s.AddHandler(m.handleVoiceStateUpdate)
 
 	s.AddHandler(m.handleReady)
 
@@ -64,7 +68,11 @@ func (m *ModuleManager) InitAll() error {
 
 		// Collect handlers
 		for k, v := range mod.Handlers() {
-			m.mappedHandlers[k] = v
+			if k == "MessageCreate" || k == "VoiceStateUpdate" {
+				m.globalHandlers[k] = append(m.globalHandlers[k], v)
+			} else {
+				m.mappedHandlers[k] = v
+			}
 		}
 	}
 
@@ -134,14 +142,23 @@ func (m *ModuleManager) handleMessageCreate(s *discordgo.Session, mc *discordgo.
 		return
 	}
 
-	// If a module registered "MessageCreate", call it
-	if h, ok := m.mappedHandlers["MessageCreate"]; ok {
-		// In a true modular system without a slice of handlers per event type,
-		// we might need a different pattern for global events like MessageCreate
-		// that multiple modules want to listen to.
-		// For simplicity, we just cast and execute.
-		if handlerFunc, ok := h.(func(*discordgo.Session, *discordgo.MessageCreate)); ok {
-			handlerFunc(s, mc)
+	// If modules registered "MessageCreate", call them all
+	if handlers, ok := m.globalHandlers["MessageCreate"]; ok {
+		for _, h := range handlers {
+			if handlerFunc, ok := h.(func(*discordgo.Session, *discordgo.MessageCreate)); ok {
+				handlerFunc(s, mc)
+			}
+		}
+	}
+}
+
+// handleVoiceStateUpdate routes voice state updates to all enabled modules that registered a `VoiceStateUpdate` handler
+func (m *ModuleManager) handleVoiceStateUpdate(s *discordgo.Session, vs *discordgo.VoiceStateUpdate) {
+	if handlers, ok := m.globalHandlers["VoiceStateUpdate"]; ok {
+		for _, h := range handlers {
+			if handlerFunc, ok := h.(func(*discordgo.Session, *discordgo.VoiceStateUpdate)); ok {
+				handlerFunc(s, vs)
+			}
 		}
 	}
 }
