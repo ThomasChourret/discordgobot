@@ -9,9 +9,11 @@ import (
 	"github.com/thomaschourret/discordgobot/config"
 	"github.com/thomaschourret/discordgobot/core"
 	"github.com/thomaschourret/discordgobot/db"
+	"github.com/thomaschourret/discordgobot/modules/blindtest"
 	"github.com/thomaschourret/discordgobot/modules/gemini"
 	"github.com/thomaschourret/discordgobot/modules/geminipersona"
 	"github.com/thomaschourret/discordgobot/modules/getrole"
+	"github.com/thomaschourret/discordgobot/modules/music"
 	"github.com/thomaschourret/discordgobot/modules/personalvoice"
 
 	"github.com/bwmarrin/discordgo"
@@ -51,6 +53,8 @@ func main() {
 	manager.Register(gemini.NewModule(cfg.GeminiAPIKey, cfg.GeminiModel, database, cfg.GeminiUseSystemPrompt))
 	manager.Register(geminipersona.NewModule(cfg.GeminiAPIKey, cfg.GeminiModel, database, cfg.GeminiPersonaUseSystemPrompt))
 	manager.Register(personalvoice.NewModule(database))
+	manager.Register(blindtest.NewModule(database))
+	manager.Register(music.NewModule(database))
 
 	// 6. Open Websocket Connection
 	log.Println("Opening connection to Discord...")

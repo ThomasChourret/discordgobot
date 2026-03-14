@@ -20,7 +20,9 @@ RUN CGO_ENABLED=1 GOOS=linux go build -a -o discordbot .
 # Stage 2: Minimal runtime image
 # We use Debian slim instead of Alpine to guarantee 100% glibc compatibility for go-sqlite3 bindings
 FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y ca-certificates tzdata && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ca-certificates tzdata ffmpeg python3 python3-pip && \
+    pip3 install --break-system-packages yt-dlp && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
