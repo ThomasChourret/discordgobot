@@ -9,9 +9,11 @@ import (
 
 // Config holds all the environment variables for the bot
 type Config struct {
-	DiscordToken string
-	GeminiAPIKey string
-	GeminiModel  string
+	DiscordToken                 string
+	GeminiAPIKey                 string
+	GeminiModel                  string
+	GeminiUseSystemPrompt        bool
+	GeminiPersonaUseSystemPrompt bool
 }
 
 // Load reads the .env file and validates required variables
@@ -37,9 +39,14 @@ func Load() *Config {
 		geminiModel = "gemma-3-27b-it"
 	}
 
+	geminiUseSystemPrompt := os.Getenv("GEMINI_USE_SYSTEM_PROMPT") == "true"
+	geminiPersonaUseSystemPrompt := os.Getenv("GEMINI_PERSONA_USE_SYSTEM_PROMPT") == "true"
+
 	return &Config{
-		DiscordToken: discordToken,
-		GeminiAPIKey: geminiKey,
-		GeminiModel:  geminiModel,
+		DiscordToken:                 discordToken,
+		GeminiAPIKey:                 geminiKey,
+		GeminiModel:                  geminiModel,
+		GeminiUseSystemPrompt:        geminiUseSystemPrompt,
+		GeminiPersonaUseSystemPrompt: geminiPersonaUseSystemPrompt,
 	}
 }

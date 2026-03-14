@@ -47,8 +47,8 @@ func main() {
 
 	// 5. Register Modules
 	manager.Register(getrole.NewModule(database))
-	manager.Register(gemini.NewModule(cfg.GeminiAPIKey, cfg.GeminiModel, database))
-	manager.Register(geminipersona.NewModule(cfg.GeminiAPIKey, cfg.GeminiModel))
+	manager.Register(gemini.NewModule(cfg.GeminiAPIKey, cfg.GeminiModel, database, cfg.GeminiUseSystemPrompt))
+	manager.Register(geminipersona.NewModule(cfg.GeminiAPIKey, cfg.GeminiModel, database, cfg.GeminiPersonaUseSystemPrompt))
 
 	// 6. Open Websocket Connection
 	log.Println("Opening connection to Discord...")

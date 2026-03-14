@@ -26,6 +26,8 @@ type Component struct {
 	client *genai.Client
 	db     *db.DBWrapper
 
+	useSystemPrompt bool
+
 	// Simple in-memory thread history cache map[channelID/userID]ChatSession
 	sessions   map[string]*ChatSession
 	sessionsMu sync.Mutex
@@ -34,12 +36,13 @@ type Component struct {
 // Ensure Component implements core.Module
 var _ core.Module = (*Component)(nil)
 
-func NewModule(apiKey string, model string, database *db.DBWrapper) *Component {
+func NewModule(apiKey string, model string, database *db.DBWrapper, useSystemPrompt bool) *Component {
 	return &Component{
-		apiKey:   apiKey,
-		model:    model,
-		db:       database,
-		sessions: make(map[string]*ChatSession),
+		apiKey:          apiKey,
+		model:           model,
+		db:              database,
+		useSystemPrompt: useSystemPrompt,
+		sessions:        make(map[string]*ChatSession),
 	}
 }
 
@@ -479,11 +482,11 @@ func (m *Component) generateResponse(key string, prompt string, guildID string, 
 	m.sessionsMu.Lock()
 	session, exists := m.sessions[key]
 
+	systemPrompt := m.getPrePrompt(guildID, channelID)
+
 	if !exists {
 		var config *genai.GenerateContentConfig
-		systemPrompt := m.getPrePrompt(guildID, channelID)
-
-		if systemPrompt != "" {
+		if systemPrompt != "" && m.useSystemPrompt {
 			config = &genai.GenerateContentConfig{
 				SystemInstruction: &genai.Content{
 					Parts: []*genai.Part{{Text: systemPrompt}},
@@ -501,6 +504,10 @@ func (m *Component) generateResponse(key string, prompt string, guildID string, 
 		session.LastUsed = time.Now()
 	}
 	m.sessionsMu.Unlock()
+
+	if systemPrompt != "" && !m.useSystemPrompt {
+		prompt = fmt.Sprintf("%s\n\n%s", systemPrompt, prompt)
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()

@@ -21,7 +21,7 @@ Integrates Google's Gemini models for rich conversational AI using Slash Command
 *(See [gemini documentation](modules/gemini/README.md))*
 
 ### 3. `geminipersona` (Natural Mention AI)
-Integrates Google's Gemini models natively into channel conversations. By simply `@mentioning` the bot, it will read your prompt and reply gracefully. Uniquely, this module disables system instructions so it remains compatible with models that reject system prompts.  
+Integrates Google's Gemini models natively into channel conversations. By simply `@mentioning` the bot, it will read your prompt and reply gracefully. Supports per-guild pre-prompts using `/personaprompt` and configurable usage of system prompts or concatenation.  
 *(See [geminipersona documentation](modules/geminipersona/README.md))*
 
 ---
@@ -49,6 +49,12 @@ Integrates Google's Gemini models natively into channel conversations. By simply
    
    # The Gemini model to use (default: gemma-3-27b-it)
    GEMINI_MODEL=gemma-3-27b-it
+
+   # Whether the main Gemini module uses system instructions (true) or prompt concatenation (false)
+   GEMINI_USE_SYSTEM_PROMPT=true
+
+   # Whether the Persona module uses system instructions (true) or prompt concatenation (false)
+   GEMINI_PERSONA_USE_SYSTEM_PROMPT=true
    ```
 
 ### Running Locally (Go)

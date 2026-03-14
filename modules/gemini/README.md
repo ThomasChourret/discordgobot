@@ -13,6 +13,7 @@ The **Gemini AI** module integrates Google's Gemini large language model into yo
 This module utilizes the following environment variables:
 - `GEMINI_API_KEY` (Required): The API key to access Google's Gemini models.
 - `GEMINI_MODEL` (Optional): The specific model to use for chat interactions (defaults to `gemma-3-27b-it`).
+- `GEMINI_USE_SYSTEM_PROMPT` (Optional): Whether to use System Instructions (true) or concatenate the pre-prompt at the start of each user message (false). Defaults to `false`.
 
 ## Commands
 
