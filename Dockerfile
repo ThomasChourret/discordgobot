@@ -1,8 +1,7 @@
 # Stage 1: Build the Go binary
-FROM golang:1.24-alpine AS builder
+FROM golang:1.24-bookworm AS builder
 
-# Install gcc and musl-dev because go-sqlite3 requires CGO
-RUN apk add --no-cache gcc musl-dev
+# golang:1.24-bookworm already includes gcc and libc-dev needed for CGO
 
 WORKDIR /app
 
